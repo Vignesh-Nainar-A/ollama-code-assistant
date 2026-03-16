@@ -44,21 +44,18 @@ Before using this extension, you need to install and run **Ollama**.
 
 ### Step 2: Pull a Model
 
-The extension uses the **llama3** model by default. You can also use other models (see [Model Support](#model-support)).
+The extension auto-detects available Ollama models on your system. If you have no models installed, it will show an error. Pull at least one model:
 
-**Pull the llama3 model:**
+**Default (recommended):**
 ```bash
 ollama pull llama3
 ```
 
-This downloads the model (~4.7 GB). First time may take 5-10 minutes depending on internet speed.
-
-**Other popular models you can use:**
+**Or another model:**
 ```bash
-ollama pull llama2        # Classic Llama2 model
-ollama pull mistral       # Mistral 7B (fast, efficient)
-ollama pull neural-chat   # Neural Chat (optimized for conversations)
-ollama pull codellama     # Code Llama (specialized for coding)
+ollama pull mistral       # Fast and efficient
+ollama pull codellama     # Optimized for code
+ollama pull neural-chat   # Optimized for conversations
 ```
 
 ### Step 3: Start the Ollama Server
@@ -92,11 +89,17 @@ Or manually install by copying this project to your VS Code extensions folder.
 
 ### Finding the Extension in VS Code
 
-The extension adds a new panel to your editor:
+The extension adds UI elements in several places:
 
-1. **Chat Sidebar** - Look in the left sidebar (Explorer panel) for **"Ollama Chat"**
-   - Click the chat icon to open the chat panel
-   - This is where you'll have conversations with the AI
+1. **Status Bar Button** - Look at the bottom right of VS Code:
+   - Shows "💬 Ollama" button
+   - Click to open the chat panel
+   - This is the quickest way to start chatting
+
+2. **Activity Bar & Sidebar** - Look at the left sidebar:
+   - Find "Ollama Chat" in the Activity Bar (left-most icons)
+   - Click to open the chat panel
+   - The panel shows conversation history and controls
 
 2. **Inline Completions** - Activate automatically as you type
    - Start typing code and press `Ctrl+Space` to see suggestions
@@ -173,119 +176,109 @@ AI:   Sure! Here's an improved version with timeout...
 
 ### Inline Code Completions
 
-As you type code, suggestions appear automatically:
+As you type code, AI suggestions appear automatically in the autocomplete menu:
 
-1. Start typing a function or code block
-2. Suggestions appear in the autocomplete menu (based on context)
+1. Start typing code in any file
+2. After 500ms, AI completions appear (debounced to avoid slowdown)
 3. Press `Tab` or `Enter` to accept a suggestion
-4. Completions include code snippets from AI analysis
+4. Or press `Ctrl+Space` to manually trigger completions
+
+**How it works:**
+- The AI analyzes the last 10 lines of code for context
+- Suggests the next 1-2 lines based on the pattern
+- Works in any programming language supported by VS Code
 
 **Tips:**
-- Completions work best when there's enough context (previous lines of code)
-- You can trigger manually with `Ctrl+Space`
-- The AI considers your current file's language and context
+- Completions work best when there's enough context (previous code)
+- Manual trigger with `Ctrl+Space` if suggestions don't appear automatically
+- Debouncing prevents slowdown while typing fast
 
-### Automatic Model Selection
+### Model Selection
 
-The extension now includes a **smart model selector** that automatically launches Ollama models!
+You can switch between installed models in two ways:
 
-**How to use:**
+**1. Chat Panel Dropdown** (Easiest)
+   - Open the Ollama Chat panel in the sidebar
+   - Use the model dropdown at the top
+   - Select a different model from the list
+   - The chat will use the selected model for next message
 
-1. **Status Bar** (Fastest)
-   - Look at the bottom right of VS Code
-   - Click the `$(hubot) Model` icon
-   - Pick a model from the quick pick
-   - It automatically runs `ollama run <model>`
-
-2. **Chat Panel**
-   - Open the Ollama Chat panel
-   - Click the **"Select Model"** button at the top
-   - Choose your model
-   - Model starts automatically
-
-3. **Command Palette**
+**2. Command Palette**
    - Press `Ctrl+Shift+P`
    - Type: `Ollama: Select and Start Model`
-   - Pick a model and it launches
+   - Pick a model from the list
+   - A terminal opens running `ollama run <model>`
+   - Subsequent chat messages will use this model
 
-**Supported Commands:**
-- `Ollama: Select and Start Ollama Model` - Pick and launch a model
+**Available Commands:**
+- `Ollama: Select and Start Model` - Pick and launch a model
 - `Ollama: Show Available Models` - List all installed models
-- `Ollama: Stop Ollama Model` - Stop the running model
+- `Ollama: Stop Model` - Stop the currently running model
 
-**Workflow Example:**
-```
-Before: manually run 'ollama run devstral' in terminal, set environment variable
-Now:    click model icon → pick "devstral" → done! ✅
-```
-
-Use the model dropdown in the chat panel to switch between installed models at any time.
+**Note:** The extension automatically uses the first available model if llama3 is not installed. You can override this with the `OLLAMA_MODEL` environment variable.
 
 ## Model Support
 
-### Does This Support All Ollama Models?
+### Which Models Can This Extension Use?
 
-**Yes!** This extension works with any Ollama model. The default is **llama3**, but you can use:
+**All of them!** This extension works with any Ollama model. The default priority is:
 
-**Best for General Coding:**
-- `llama3` - (default) Balanced performance and quality
-- `codellama` - Specialized for code generation
-- `neural-chat` - Optimized for conversations
+1. **Primary:** `llama3` (if installed)
+2. **Fallback:** First available model on your system
+3. **Override:** Set `OLLAMA_MODEL` environment variable
 
-**Fast & Efficient:**
-- `mistral` - Small and fast
-- `orca-mini` - Lightweight alternative
-- `phi` - Very small, suitable for low-end machines
+### Recommended Models
 
-**Specialized:**
-- `llama2` - Previous generation (slower but still good)
-- `dolphin-mixtral` - High-quality reasoning
+**Best for General Coding (Balanced):**
+- `llama3` - ⭐ Default, good quality and speed
+- `neural-chat` - Fast conversation, good context
 
-### How to Change the Model
+**Best for Code Generation:**
+- `codellama` - Specialized for coding tasks
+- `mistral` - Fast and efficient
 
-**Option 1: Edit the extension source**
-1. Open [src/ollamaClient.ts](src/ollamaClient.ts)
-2. Find: `model: 'llama3'`
-3. Change to: `model: 'mistral'` (or your preferred model)
-4. Recompile: `npm run compile`
-
-**Option 2: Environment Variable (Future feature)**
-Currently, you need to modify the source code. Future versions will support configuration via VS Code settings.
+**For Low-Resource Machines:**
+- `mistral` - 2.7GB, very fast
+- `orca-mini` - 2.7GB, lightweight
+- `phi` - 1.6GB, CPU-only friendly
 
 ### Model Performance Chart
 
 | Model | Size | Speed | Quality | Best For |
 |-------|------|-------|---------|----------|
 | llama3 | 4.7GB | Medium | High | **General coding** ⭐ |
-| codellama | 3.5GB | Medium | Very High | **Code generation** ⭐ |
-| mistral | 2.7GB | Fast | High | **Speed-focused** ⭐ |
-| neural-chat | 4.1GB | Medium | High | **Conversations** ⭐ |
+| codellama | 3.5GB | Medium | Very High | **Code generation** |
+| mistral | 2.7GB | Fast | High | **Speed & efficiency** |
+| neural-chat | 4.1GB | Medium | High | **Conversations** |
 | orca-mini | 2.7GB | Fast | Medium | **Low-end machines** |
 | phi | 1.6GB | Very Fast | Medium | **CPU-only** |
 
-### Recommended Setup
+### How to Change the Default Model
 
-**For most users (good balance):**
-```bash
-ollama pull llama3
+**Option 1: Environment Variable (No Recompile)**
+
+**Windows PowerShell:**
+```powershell
+$env:OLLAMA_MODEL = "mistral"
+# Then reload VS Code
 ```
 
-**For coding-specific tasks:**
-```bash
-ollama pull codellama
+**Windows Command Prompt:**
+```cmd
+set OLLAMA_MODEL=mistral
 ```
 
-**For fast responses (slower machines):**
+**Mac/Linux:**
 ```bash
-ollama pull mistral
+export OLLAMA_MODEL=mistral
 ```
 
-**For low-resource machines (laptops, older PCs):**
-```bash
-ollama pull orca-mini
-# OR
-ollama pull phi
-```
+**Option 2: Edit Source Code**
+
+1. Open `src/ollamaClient.ts`
+2. Find line 10: `let OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3';`
+3. Change `'llama3'` to your preferred model
+4. Recompile: `npm run compile`
 
 ## Troubleshooting
 

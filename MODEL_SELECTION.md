@@ -1,103 +1,225 @@
-# Model Selection Feature - Quick Start
+# Model Selection & Switching
 
-## What's New?
+## Quick Start
 
-Your extension now has **automatic model selection and launching**! No more manual setup—just pick a model and it runs.
+The extension makes it easy to use any Ollama model. Here are your options:
+
+---
+
+## Method 1: Chat Panel Dropdown (Easiest)
+
+1. Open **Ollama Chat** in the sidebar
+2. Find the **model dropdown** at the top
+3. Select a different model
+4. The next message will use the selected model
+
+**No restart needed!** Model changes apply instantly.
+
+---
+
+## Method 2: Command Palette
+
+**Step 1:** Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (Mac)
+
+**Step 2:** Type one of these commands:
+- `Ollama: Select and Start Model` - Pick model from list & launch it
+- `Ollama: Show Available Models` - See all installed models
+- `Ollama: Stop Model` - Stop the running model
+
+**Step 3:** Select your model from the quick pick
+
+This opens a terminal with `ollama run <model>` running.
+
+---
+
+## Method 3: Environment Variables
+
+**Windows PowerShell:**
+```powershell
+$env:OLLAMA_MODEL = "mistral"
+# Reload VS Code
+```
+
+**Windows Command Prompt:**
+```cmd
+set OLLAMA_MODEL=mistral
+```
+
+**Mac/Linux:**
+```bash
+export OLLAMA_MODEL=mistral
+```
+
+Then reload VS Code for changes to take effect.
+
+---
+
+## Method 4: Edit Source Code
+
+For a permanent default change:
+
+1. Open `src/ollamaClient.ts`
+2. Find line 10: `let OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3';`
+3. Change `'llama3'` to your preferred model
+4. Recompile: `npm run compile`
+
+---
+
+## Available Models
+
+Any model from Ollama works! Popular choices:
+
+| Model | Size | Speed | Best For |
+|-------|------|-------|----------|
+| llama3 | 4.7GB | Medium | **Default, general coding** |
+| codellama | 3.5GB | Medium | **Code generation** |
+| mistral | 2.7GB | Fast | **Speed-focused** |
+| neural-chat | 4.1GB | Medium | **Conversations** |
+| orca-mini | 2.7GB | Fast | **Low-resource machines** |
+| phi | 1.6GB | Very Fast | **CPU-only** |
+
+---
+
+## Pull a Model
+
+```bash
+ollama pull llama3        # Default
+ollama pull mistral       # Fast alternative
+ollama pull codellama     # For coding tasks
+ollama pull neural-chat   # For conversations
+```
+
+---
 
 ## How It Works
 
-### 1. **Status Bar Icon** (Quickest)
-- Look at the **bottom right** of VS Code
-- You'll see `$(hubot) Model Name` icon
-- **Click it** to select and start a model
-- The handler automatically runs `ollama run <model>` in a terminal
+### Auto-Detection Priority
 
-### 2. **Chat Panel Button** (In the Chat)
-- Open the **Ollama Chat** panel (left sidebar)
-- Click **"Select Model"** button at the top right
-- Pick a model from the quick pick list
-- Model starts automatically
+The extension uses this priority:
 
-### 3. **Command Palette** (Traditional)
+1. **Environment Variable** → `$OLLAMA_MODEL` (if set)
+2. **Default Model** → `llama3` (if installed)
+3. **First Available** → Any installed model
+4. **Error** → "No models found"
+
+### Model Switching Under the Hood
+
+When you switch models via the chat panel:
+
 ```
-Ctrl+Shift+P (or Cmd+Shift+P on Mac)
-> Ollama: Select and Start Ollama Model
+User selects model in dropdown
+          ↓
+setOllamaModel(newModel)  (updates OLLAMA_MODEL variable)
+          ↓
+Next chat message uses new model
+          ↓
+No restart or reload needed!
 ```
 
-## Workflow
+---
 
-Here's how smooth it is now:
+## Command Reference
 
-**Old Way:**
+```
+Ctrl+Shift+P → Ollama: Select and Start Model
+Ctrl+Shift+P → Ollama: Show Available Models
+Ctrl+Shift+P → Ollama: Stop Model
+```
+
+These commands come from `modelManager.ts`:
+- `selectAndStartModel()` - Show quick pick & launch
+- `showAvailableModels()` - List all downloaded models
+- `stopModel()` - Kill the running model process
+
+---
+
+## Examples
+
+### Example 1: Quick Model Switch
+```
+1. Chat panel dropdown shows: "llama3"
+2. User selects: "mistral"
+3. Send next message → uses mistral
+4. User selects: "codellama"
+5. Send next message → uses codellama
+```
+
+### Example 2: Environment Variable Method
 ```bash
-# In terminal:
-ollama run devstral
-# Manually set environment:
-set OLLAMA_MODEL=devstral
-# Start VS Code extension
+# Before opening VS Code
+set OLLAMA_MODEL=codellama
+
+# Open VS Code
+code .
+
+# Extension uses codellama for all messages
 ```
 
-**New Way:**
+### Example 3: Command Palette Method
 ```
-1. Open VS Code (Ollama running in background)
-2. Click model icon in status bar (or "Select Model" in chat)
-3. Pick "devstral" from list
-4. ✅ Done! Extension automatically runs `ollama run devstral`
-```
-
-## Features Added
-
-### Files Created:
-- **`src/modelManager.ts`** - Handles model selection and running
-
-### Files Modified:
-- **`src/ollamaClient.ts`** - Added model fetching APIs
-- **`src/extension.ts`** - Added status bar + commands
-- **`src/chatViewProvider.ts`** - Added "Select Model" button
-- **`package.json`** - Registered new commands
-
-### New Commands:
-```
-codeAssistant.selectModel      → Select and start a model
-codeAssistant.showModels       → Show all available models
-codeAssistant.stopModel        → Stop the running model
+Ctrl+Shift+P
+> Ollama: Select and Start Model
+> Pick "neural-chat"
+> Terminal runs: ollama run neural-chat
+> Chat uses neural-chat model
 ```
 
-## Implementation Details
+---
 
-### ollamaClient.ts Changes
-```typescript
-// New function to fetch all available models
-export async function getAvailableModels(): Promise<OllamaModel[]>
-export async function getAvailableModelNames(): Promise<string[]>
+## Troubleshooting
+
+### "No models found"
+**Solution:** Pull at least one model
+```bash
+ollama pull llama3
 ```
 
-### modelManager.ts New Features
-```typescript
-// Select model with UI and auto-start
-static async selectAndStartModel()
+### Model dropdown shows nothing
+**Solution:** 
+1. Make sure Ollama is running: `ollama serve`
+2. Reload VS Code: `Ctrl+Shift+P` → Reload Window
 
-// Directly start any model
-static async startModel(modelName: string)
+### Environment variable not working
+**Solution:**
+- Reload VS Code after setting variable
+- Or use chat panel dropdown instead
 
-// Show available models
-static async showAvailableModels()
+### Switching models doesn't seem to work
+**Solution:**
+- Reload VS Code: `Ctrl+Shift+P` → Reload Window
+- Or close and reopen the chat panel
 
-// Get current model
-static getCurrentRunningModel(): string | undefined
-```
+---
 
-### extension.ts Changes
-Added:
-- Status bar item showing current model (clickable!)
-- Model selector command
-- Show models command
-- Stop model command
-- Auto-updating status every 2 seconds
+## Best Practices
 
-### chatViewProvider.ts Changes
-- "Select Model" button in chat header
-- Click to trigger model selection
+✅ **Do:**
+- Use the chat panel dropdown for quick switches (recommended)
+- Set environment variable for persistent defaults in terminal
+- Use `Ollama: Select and Start Model` for one-off model launches
+
+❌ **Don't:**
+- Edit ollamaClient.ts unless you want a permanent default
+- Rely on manual terminal setup (the UI is easier!)
+- Leave multiple Ollama processes running (memory intensive)
+
+---
+
+## Performance Notes
+
+- **Model switching** is instant (no reload needed)
+- **First message with new model** may take 1-2s (model loading)
+- **Chat speed** depends on model size and your hardware
+- **Model unload** takes a few seconds (frees up memory)
+
+---
+
+## See Also
+
+- [README.md](README.md) - Full feature overview
+- [INSTALLATION.md](INSTALLATION.md) - Setup guide
+- [FEATURE_SUMMARY.md](FEATURE_SUMMARY.md) - All features at a glance
+- [Ollama Documentation](https://ollama.com) - Official Ollama docs
 - Model status display
 
 ## Step-by-Step Setup

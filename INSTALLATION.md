@@ -38,18 +38,25 @@ npm run package
 
 ## Model Configuration
 
-### Currently Only llama3?
+### Auto-Detection and Defaults
 
-**NO!** You can use ANY Ollama model. The code was hardcoded to llama3 before, but I just improved it to support easy model switching.
+The extension uses this priority for selecting a model:
 
-### How to Change the Model
+1. Check if `OLLAMA_MODEL` environment variable is set → use that
+2. Check if `llama3` is installed → use `llama3`
+3. If neither → use the first available model
+4. If no models available → show an error
+
+This means you don't have to configure anything! Just install Ollama and pull a model.
+
+### How to Change the Default Model
 
 #### Method 1: Environment Variable (No Recompile)
 
 **Windows PowerShell:**
 ```powershell
 $env:OLLAMA_MODEL = "mistral"
-# Then start the extension or reload VS Code
+# Then reload VS Code
 ```
 
 **Windows Command Prompt:**
@@ -62,7 +69,7 @@ set OLLAMA_MODEL=mistral
 export OLLAMA_MODEL=mistral
 ```
 
-#### Method 2: Edit and Recompile (If you want to make it permanent)
+#### Method 2: Edit Source Code (Permanent Change)
 
 1. Open `src/ollamaClient.ts`
 2. On line 10, change:
@@ -77,8 +84,21 @@ export OLLAMA_MODEL=mistral
    ```bash
    npm run compile
    ```
+4. Reinstall the extension
 
-### Available Models to Try
+### Switching Models While Using the Extension
+
+You don't need to restart anything! Use the **Chat Panel Model Dropdown**:
+
+1. Open the Ollama Chat panel in the sidebar
+2. Click the model dropdown at the top
+3. Select a different model
+4. The next message will use the new model
+
+Or use **Command Palette**:
+1. Press `Ctrl+Shift+P`
+2. Type: `Ollama: Select and Start Model`
+3. Pick a model (opens `ollama run <model>` in terminal)
 
 Make sure you pull the model first:
 
