@@ -26,6 +26,36 @@ A VS Code extension that integrates **Ollama** (local LLM inference) to provide 
 🚀 **Live Code Editing** - Apply AI suggestions directly to your code  
 🎯 **Automatic Model Selection** - Pick and launch any Ollama model with one click—no manual configuration needed!
 
+## Limitations & What This Is NOT
+
+⚠️ **Be aware of these limitations before installing:**
+
+- **Local Only** - Works exclusively with local Ollama models. Cannot connect to cloud APIs (OpenAI, Claude, etc.)
+- **Hardware Dependent** - Performance depends on your CPU/GPU. Large models need 4-8GB RAM
+- **No Streaming** - Responses arrive as complete blocks, not streamed character-by-character
+- **Limited Context** - File attachments truncated at 600 lines; large codebases may not fit in context
+- **Slower Than Cloud** - Responses take 2-10 seconds depending on model and hardware
+- **Model Quality Varies** - Smaller/faster models (mistral, phi) produce lower quality than larger ones (llama3)
+- **No Image Support** - Cannot process images or generate images
+- **No Fine-Tuning** - Cannot customize or fine-tune models (use Ollama for that)
+- **Manual Model Management** - Models must be pre-downloaded with `ollama pull <model>`
+- **History Not Persistent** - Conversations are lost when you close the chat panel (by design for privacy)
+- **No Agent/Tool Calls** - Cannot execute code automatically or call external tools
+- **Language Model Limitations** - All limitations of LLMs apply (hallucinations, outdated knowledge, reasoning limits)
+
+**Best Use Cases:**
+✅ Code snippets and completions  
+✅ Understanding existing code  
+✅ Refactoring suggestions  
+✅ Error debugging  
+✅ Quick code generation  
+
+**NOT Recommended For:**
+❌ Critical production code without review  
+❌ Complex multi-step automations  
+❌ Real-time collaborative features  
+❌ Replacing full IDE features  
+
 ## Prerequisites
 
 Before using this extension, you need to install and run **Ollama**.
@@ -44,19 +74,16 @@ Before using this extension, you need to install and run **Ollama**.
 
 ### Step 2: Pull a Model
 
-The extension auto-detects available Ollama models on your system. If you have no models installed, it will show an error. Pull at least one model:
+Pull at least one Ollama model. The extension will auto-detect and use any available model:
 
-**Default (recommended):**
 ```bash
-ollama pull llama3
-```
-
-**Or another model:**
-```bash
+ollama pull llama3        # Balanced (good starting point)
 ollama pull mistral       # Fast and efficient
 ollama pull codellama     # Optimized for code
 ollama pull neural-chat   # Optimized for conversations
 ```
+
+Pick one (or more) based on your needs. The extension will automatically detect and use them.
 
 ### Step 3: Start the Ollama Server
 
