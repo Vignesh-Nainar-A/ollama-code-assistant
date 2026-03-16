@@ -337,14 +337,28 @@ ollama pull phi
 ### Extension not showing chat panel
 
 **Solution:**
-1. Reload VS Code: `Ctrl+Shift+P` → "Reload Window"
+1. **Make sure Ollama is running:**
+   ```bash
+   ollama serve
+   ```
 
-2. Check that extension is activated:
+2. **Reload VS Code**: `Ctrl+Shift+P` → "Reload Window"
+
+3. **Check the Extension Output:**
    - Open Output panel (`Ctrl+Shift+U`)
-   - Select "Ollama Code Assistant" from dropdown
-   - Should show "Congratulations..." message
+   - Select "Extension Host" from dropdown
+   - Look for error messages (should see "Ollama Code Assistant activated")
 
-3. Manually click Explorer icon in left sidebar → find "Ollama Chat"
+4. **Verify extension is packed correctly:**
+   - If you built from source, ensure `.vscodeignore` includes `node_modules/`
+   - Reinstall the `.vsix` file if you packaged it yourself
+
+5. **Manually locate the chat panel:**
+   - Click the **Explorer icon** in the left Activity Bar
+   - Scroll down to find "Ollama Chat"
+   - If not visible, the extension may not have activated properly
+
+**Note for v0.1.1+:** The extension now activates instantly even if Ollama is offline. The chat icon should appear immediately in your Activity Bar.
 
 ## Development
 

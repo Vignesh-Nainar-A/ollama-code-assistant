@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.1] - 2026-03-16 (Bug Fix Release)
+
+### Fixed
+- 🔧 **Extension activation hanging** — Made `autoDetectAndSetModel()` non-blocking to prevent extension from stalling on startup
+- 📦 **Installed extension not loading** — Fixed `.vscodeignore` to include `node_modules/` in packaged extension (was causing "Cannot find module 'node-fetch'" errors)
+- ⏱️ **API timeout handling** — Added 3-5 second timeouts to model detection and API calls to prevent indefinite hangs when Ollama is unavailable
+- 🚀 **Faster activation** — Extension now shows chat panel immediately even when Ollama is slow to respond; model detection happens in background
+
+### Technical
+- Improved error handling in `chatViewProvider.ts` with try/catch blocks around model fetching
+- Added proper timeout using `AbortController` on all network requests
+- Extension now activates instantly regardless of Ollama availability
+
+---
+
 ## [0.1.0] - 2026-03-16
 
 ### Added

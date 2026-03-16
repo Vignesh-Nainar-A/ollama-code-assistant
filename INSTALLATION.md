@@ -25,12 +25,14 @@ npm install -g @vscode/vsce
 
 # From your project directory:
 npm run compile
-vsce package
+npm run package
 
 # This creates: ollama-code-assistant-0.1.0.vsix
 # Then in VS Code:
 # Extensions (Ctrl+Shift+X) → ... menu → Install from VSIX
 ```
+
+**Important**: Make sure `node_modules/` is NOT excluded in `.vscodeignore` — the extension needs access to `node-fetch` at runtime.
 
 ---
 
