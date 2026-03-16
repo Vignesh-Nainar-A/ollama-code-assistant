@@ -27,8 +27,17 @@ export function initializeOllamaClient() {
 
 // Initialize and auto-detect available model if llama3 is not available
 export async function autoDetectAndSetModel() {
+    const TIMEOUT_MS = 3000; // 3 second timeout for model detection
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    
     try {
-        const availableModels = await getAvailableModelNames();
+        const availableModels = await Promise.race([
+            getAvailableModelNames(),
+            new Promise<string[]>((_, reject) => 
+                setTimeout(() => reject(new Error('Model detection timeout')), TIMEOUT_MS)
+            )
+        ]);
         
         if (availableModels.length === 0) {
             console.warn('No models available in Ollama. Please install a model first.');
@@ -44,6 +53,8 @@ export async function autoDetectAndSetModel() {
         }
     } catch (error) {
         console.error('Failed to auto-detect model:', error);
+    } finally {
+        clearTimeout(timeout);
     }
 }
 
@@ -60,8 +71,14 @@ export function getOllamaModel(): string {
 
 // Fetch all available models from Ollama
 export async function getAvailableModels(): Promise<OllamaModel[]> {
+    const TIMEOUT_MS = 5000; // 5 second timeout for model discovery
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    
     try {
-        const response = await fetch(OLLAMA_TAGS_URL);
+        const response = await fetch(OLLAMA_TAGS_URL, {
+            signal: controller.signal
+        });
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -72,6 +89,8 @@ export async function getAvailableModels(): Promise<OllamaModel[]> {
     } catch (error) {
         console.error('Failed to fetch models:', error);
         return [];
+    } finally {
+        clearTimeout(timer);
     }
 }
 

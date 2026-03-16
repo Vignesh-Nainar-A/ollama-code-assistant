@@ -5,8 +5,11 @@ import { ModelManager } from './modelManager';
 import { autoDetectAndSetModel, getOllamaModel } from './ollamaClient';
 
 export async function activate(context: vscode.ExtensionContext) {
-    // Auto-detect installed model (fixes 404 when llama3 not present)
-    await autoDetectAndSetModel();
+    // Auto-detect installed model in background (non-blocking) to avoid hanging activation
+    // This allows the extension UI to show even if Ollama connection is slow
+    autoDetectAndSetModel().catch(err => {
+        console.error('Failed to auto-detect model:', err);
+    });
 
     // Register the WebView provider first so it's ready before any command opens it
     const chatProvider = new ChatViewProvider(context.extensionUri);

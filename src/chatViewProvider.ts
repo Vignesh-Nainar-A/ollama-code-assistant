@@ -63,15 +63,28 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         });
 
         // Fetch models first so they are baked into the HTML options
-        const models = await getAvailableModelNames();
+        let models: string[] = [];
+        try {
+            models = await getAvailableModelNames();
+        } catch (error) {
+            console.error('Failed to fetch models from Ollama:', error);
+            vscode.window.showErrorMessage(
+                'Unable to connect to Ollama. Make sure Ollama is running on http://localhost:11434'
+            );
+        }
+        
         webviewView.webview.html = this.buildHtml(webviewView.webview, models, getOllamaModel());
 
         // Re-sync model list when panel is shown again
         webviewView.onDidChangeVisibility(async () => {
             if (webviewView.visible) {
-                const m = await getAvailableModelNames();
-                if (m.length > 0) {
-                    this.post({ type: 'init', models: m, current: getOllamaModel() });
+                try {
+                    const m = await getAvailableModelNames();
+                    if (m.length > 0) {
+                        this.post({ type: 'init', models: m, current: getOllamaModel() });
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch models on visibility change:', error);
                 }
             }
         });
