@@ -1,0 +1,31 @@
+# Dependency directories
+node_modules/
+
+# Compiled output
+out/
+
+# VS Code Extension packaging output
+*.vsix
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.idea/
+*.suo
+*.user
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test output
+coverage/

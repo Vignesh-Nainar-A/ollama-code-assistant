@@ -1,0 +1,133 @@
+{
+    "name": "ollama-code-assistant",
+    "displayName": "Ollama Code Assistant",
+    "publisher": "local-dev",
+    "version": "0.1.0",
+    "description": "AI-powered code assistance using Ollama - local LLM inference for VS Code. No cloud, no API keys.",
+    "keywords": ["ollama", "ai", "llm", "code assistant", "local ai", "copilot", "chat", "code completion"],
+    "homepage": "https://github.com/VigneshA/ollama-code-assistant#readme",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/VigneshA/ollama-code-assistant"
+    },
+    "bugs": {
+        "url": "https://github.com/VigneshA/ollama-code-assistant/issues"
+    },
+    "engines": {
+        "vscode": "^1.70.0"
+    },
+    "categories": [
+        "AI",
+        "Other"
+    ],
+    "activationEvents": [
+        "onStartupFinished",
+        "onCommand:codeAssistant.generateCode",
+        "onCommand:codeAssistant.refactorCode",
+        "onCommand:codeAssistant.explainCode",
+        "onCommand:codeAssistant.fixErrors",
+        "onCommand:codeAssistant.selectModel",
+        "onCommand:codeAssistant.showModels",
+        "onCommand:codeAssistant.stopModel",
+        "onCommand:codeAssistant.openChat",
+        "onView:ollama-assistant.chatView"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "ollama-sidebar",
+                    "title": "Ollama Chat",
+                    "icon": "media/ollama.svg"
+                }
+            ]
+        },
+        "views": {
+            "ollama-sidebar": [
+                {
+                    "type": "webview",
+                    "id": "ollama-assistant.chatView",
+                    "name": "Ollama",
+                    "icon": "media/ollama.svg"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "codeAssistant.openChat",
+                "title": "Open Ollama Chat",
+                "category": "Ollama"
+            },
+            {
+                "command": "codeAssistant.generateCode",
+                "title": "Generate Code",
+                "category": "Ollama"
+            },
+            {
+                "command": "codeAssistant.refactorCode",
+                "title": "Refactor Code",
+                "category": "Ollama"
+            },
+            {
+                "command": "codeAssistant.explainCode",
+                "title": "Explain Code",
+                "category": "Ollama"
+            },
+            {
+                "command": "codeAssistant.fixErrors",
+                "title": "Fix Errors",
+                "category": "Ollama"
+            },
+            {
+                "command": "codeAssistant.selectModel",
+                "title": "Select and Start Model",
+                "category": "Ollama"
+            },
+            {
+                "command": "codeAssistant.showModels",
+                "title": "Show Available Models",
+                "category": "Ollama"
+            },
+            {
+                "command": "codeAssistant.stopModel",
+                "title": "Stop Model",
+                "category": "Ollama"
+            }
+        ],
+        "menus": {
+            "editor/context": [
+                {
+                    "command": "codeAssistant.explainCode",
+                    "when": "editorHasSelection",
+                    "group": "ollama@1"
+                },
+                {
+                    "command": "codeAssistant.refactorCode",
+                    "when": "editorHasSelection",
+                    "group": "ollama@2"
+                },
+                {
+                    "command": "codeAssistant.fixErrors",
+                    "when": "editorHasSelection",
+                    "group": "ollama@3"
+                }
+            ]
+        }
+    },
+    "devDependencies": {
+        "@types/node": "^18.0.0",
+        "@types/vscode": "^1.70.0",
+        "typescript": "^4.4.0"
+    },
+    "dependencies": {
+        "node-fetch": "^3.0.0"
+    },
+    "scripts": {
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "package": "vsce package",
+        "pretest": "npm run compile && npm run lint",
+        "test": "node ./node_modules/vscode/bin/test"
+    }
+}
